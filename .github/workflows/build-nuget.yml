@@ -22,10 +22,12 @@ jobs:
       - name: Install vcpkg
         run: |
           git clone https://github.com/microsoft/vcpkg.git
+          git -C vcpkg pull
           .\vcpkg\bootstrap-vcpkg.bat
+          .\vcpkg\vcpkg.exe integrate install
 
       - name: Install libxml2 with vcpkg
-        run: .\vcpkg\vcpkg.exe install --manifest-root
+        run: .\vcpkg\vcpkg.exe install --triplet x64-windows
 
       - name: Copy vcpkg installed files to package layout
         run: |
