@@ -1,0 +1,15 @@
+{
+  "name": "libxml2-vcpkg",
+  "version-string": "1.0.0",
+  "description": "Projeto fixando libxml2",
+  "dependencies": [
+    "libxml2"
+  ],
+  "overrides": [
+    {
+      "name": "libxml2",
+      "version": "2.11.5",
+      "port-version": 0
+    }
+  ]
+}
