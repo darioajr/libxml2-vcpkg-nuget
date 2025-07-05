@@ -1,0 +1,43 @@
+name: Build libxml2 NuGet Package
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}\vcpkg
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
+
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          .\vcpkg\bootstrap-vcpkg.bat
+
+      - name: Install libxml2 with vcpkg
+        run: .\vcpkg\vcpkg.exe install libxml2:x64-windows
+
+      - name: Copy vcpkg installed files to package layout
+        run: |
+          mkdir -Force package\vcpkg_installed
+          robocopy /E /NFL /NDL /NJH /NJS vcpkg\installed\x64-windows package\vcpkg_installed\x64-windows
+
+      - name: Pack NuGet package
+        run: |
+          nuget pack libxml2.nuspec -OutputDirectory out
+
+      - name: Upload NuGet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libxml2-nupkg
+          path: out\*.nupkg
