@@ -29,13 +29,6 @@ jobs:
       - name: Install libxml2 with vcpkg
         run: .\vcpkg\vcpkg.exe install --triplet x64-windows
 
-      - name: Copy vcpkg installed files to package layout
-        run: |
-          dir vcpkg
-          dir vcpkg_installed
-          mkdir -Force package\vcpkg_installed
-          robocopy /E /NFL /NDL /NJH /NJS vcpkg_installed\x64-windows package\vcpkg_installed\x64-windows
-
       - name: Pack NuGet package
         run: |
           nuget pack libxml2.nuspec -OutputDirectory out
