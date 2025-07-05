@@ -16,6 +16,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Obter versão do libxml2 via vcpkg.json
+        id: get-version
+        shell: pwsh
+        run: |
+          $json = Get-Content -Raw -Path "vcpkg.json" | ConvertFrom-Json
+          $dep = $json.dependencies | Where-Object { $_.name -eq "libxml2" }
+          $version = if ($dep.version) { $dep.version } elseif ($dep.'version>=') { $dep.'version>=' } else { "0.0.0" }
+          echo "Versão: $version"
+          echo "PACKAGE_VERSION=$version" >> $env:GITHUB_OUTPUT
+
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
 
@@ -33,6 +43,23 @@ jobs:
         run: |
           nuget pack libxml2.nuspec -OutputDirectory out
 
+      - name: Publish on NuGet.org
+        run: nuget push out\*.nupkg -ApiKey ${{ secrets.NUGET_API_KEY }} -Source https://api.nuget.org/v3/index.json
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ env.PACKAGE_VERSION }}
+          tag_name: ${{ env.PACKAGE_VERSION }}
+          files: |
+            ${{env.GITHUB_WORKSPACE}}\out\*.nupkg
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          make_latest: true
+          fail_on_unmatched_files: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+  
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v4
         with:

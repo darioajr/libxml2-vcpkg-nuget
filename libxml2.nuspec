@@ -7,7 +7,7 @@
     <owners>Dario Alves Junior</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">Apache-2.0</license>
-    <projectUrl>http://xmlsoft.org/</projectUrl>
+    <projectUrl>https://github.com/darioajr/libxml2-vcpkg-nuget</projectUrl>
     <description>libxml2 build from vcpkg for Windows x64 vc143 (Visual Studio 2022)</description>
     <tags>libxml2 vcpkg c++ xml</tags>
     <readme>README.md</readme>
@@ -42,7 +42,6 @@
     <file src="vcpkg_installed\x64-windows\bin\iconv-2.pdb" target="build\native\bin\x64\Release" />
     <file src="vcpkg_installed\x64-windows\bin\liblzma.dll" target="build\native\bin\x64\Release" />
     <file src="vcpkg_installed\x64-windows\bin\liblzma.pdb" target="build\native\bin\x64\Release" />
-    <file src="vcpkg_installed\x64-windows\bin\xml2-config" target="build\native\bin\x64\Release" />
     <file src="vcpkg_installed\x64-windows\bin\zlib.pdb" target="build\native\bin\x64\Release" />
     <file src="vcpkg_installed\x64-windows\bin\zlib1.dll" target="build\native\bin\x64\Release" />
 
@@ -54,7 +53,6 @@
     <file src="vcpkg_installed\x64-windows\debug\bin\iconv-2.pdb" target="build\native\bin\x64\Debug" />
     <file src="vcpkg_installed\x64-windows\debug\bin\liblzma.dll" target="build\native\bin\x64\Debug" />
     <file src="vcpkg_installed\x64-windows\debug\bin\liblzma.pdb" target="build\native\bin\x64\Debug" />
-    <file src="vcpkg_installed\x64-windows\debug\bin\xml2-config" target="build\native\bin\x64\Debug" />
     <file src="vcpkg_installed\x64-windows\debug\bin\zlibd.pdb" target="build\native\bin\x64\Debug" />
     <file src="vcpkg_installed\x64-windows\debug\bin\zlibd1.dll" target="build\native\bin\x64\Debug" />
 
