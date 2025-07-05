@@ -31,6 +31,7 @@ jobs:
 
       - name: Copy vcpkg installed files to package layout
         run: |
+          dir
           mkdir -Force package\vcpkg_installed
           robocopy /E /NFL /NDL /NJH /NJS vcpkg_installed\x64-windows package\vcpkg_installed\x64-windows
 
