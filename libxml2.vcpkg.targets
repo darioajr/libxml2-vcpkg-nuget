@@ -14,7 +14,7 @@
     </Link>
 
     <PostBuildEvent>
-      xcopy /Y /D "$(MSBuildThisFileDirectory)bin\x64\Release\*.dll" "$(OutDir)"
+      <Command>xcopy /Y /D "$(MSBuildThisFileDirectory)bin\x64\Release\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
 
@@ -32,7 +32,7 @@
     </Link>
 
     <PostBuildEvent>
-      xcopy /Y /D "$(MSBuildThisFileDirectory)bin\x64\Debug\*.dll" "$(OutDir)"
+      <Command>xcopy /Y /D "$(MSBuildThisFileDirectory)bin\x64\Debug\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
 
