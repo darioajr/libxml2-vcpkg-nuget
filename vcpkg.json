@@ -8,8 +8,8 @@
   "overrides": [
     {
       "name": "libxml2",
-      "version": "2.13.5",
-      "port-version": 2
+      "version": "2.13.8",
+      "port-version": 1
     }
   ]
 }
