@@ -9,7 +9,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
-        libxml2.lib;charset.lib;iconv.lib;zlib.lib;%(AdditionalDependencies)
+        libxml2.lib;charset.lib;iconv.lib;lzma.lib;zlib.lib;%(AdditionalDependencies)
       </AdditionalDependencies>
     </Link>
 
@@ -27,7 +27,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>
-        libxml2.lib;charset.lib;iconv.lib;zlibd.lib;%(AdditionalDependencies)
+        libxml2.lib;charset.lib;iconv.lib;lzma.lib;zlibd.lib;%(AdditionalDependencies)
       </AdditionalDependencies>
     </Link>
 
