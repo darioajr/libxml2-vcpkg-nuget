@@ -43,3 +43,4 @@
 build
 vcpkg_installed
 .vs
+out

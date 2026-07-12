@@ -2,31 +2,50 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>libxml2.vcpkg</id>
-    <version>2.9.10</version>
-    <authors>Gnome Project</authors>
+    <version>2.9.10.1</version>
+    <title>libxml2 (vcpkg native binaries, x64-windows, v143)</title>
+    <authors>Dario Alves Junior</authors>
     <owners>Dario Alves Junior</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">Apache-2.0</license>
+
+    <!--
+      This package redistributes upstream third-party binaries. The SPDX expression
+      below is the conjunction of every license present in the package payload:
+        libxml2              -> MIT
+        zlib                 -> Zlib
+        liblzma (XZ Utils)   -> 0BSD
+        libiconv/libcharset  -> LGPL-2.1-or-later  (dynamically linked, see notices)
+      Verbatim license texts ship in the package under licenses/.
+      Attribution and the LGPL relink notice are in THIRD-PARTY-NOTICES.md.
+    -->
+    <license type="expression">MIT AND Zlib AND 0BSD AND LGPL-2.1-or-later</license>
+    <copyright>libxml2: Copyright (C) 1998-2012 Daniel Veillard. libiconv: Copyright (C) Free Software Foundation, Inc. zlib: Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler. See THIRD-PARTY-NOTICES.md.</copyright>
+
     <projectUrl>https://github.com/darioajr/libxml2-vcpkg-nuget</projectUrl>
-    <description>libxml2 build from vcpkg for Windows x64 vc143 (Visual Studio 2022)</description>
+    <repository type="git" url="https://github.com/darioajr/libxml2-vcpkg-nuget.git" />
+    <description>libxml2 built from vcpkg for Windows x64 vc143 (Visual Studio 2022). Redistribution of upstream libxml2 (MIT) with its zlib (Zlib), liblzma (0BSD) and libiconv (LGPL-2.1-or-later) dependencies. This package is not affiliated with or endorsed by the GNOME Project. See THIRD-PARTY-NOTICES.md for attribution and the LGPL relink notice.</description>
     <tags>native libxml2 vcpkg c++ xml</tags>
     <readme>README.md</readme>
   </metadata>
   <files>
-    
+
     <file src="README.md" target="" />
 
+    <!-- License / attribution: required for redistribution (LGPL in particular) -->
+    <file src="THIRD-PARTY-NOTICES.md" target="" />
+    <file src="LICENSE" target="licenses\packaging-MIT.txt" />
+    <file src="licenses\*.txt" target="licenses" />
+
     <file src="libxml2.vcpkg.targets" target="build\native" />
-    
+
     <!-- Headers -->
     <file src="vcpkg_installed\x64-windows\include\**\*.*" target="build\native\include" />
 
-    <!-- Static lib -->
+    <!-- Import libs -->
     <file src="vcpkg_installed\x64-windows\lib\*.lib" target="build\native\lib\x64\Release" />
     <file src="vcpkg_installed\x64-windows\debug\lib\*.lib" target="build\native\lib\x64\Debug" />
-    
 
-    <!-- DLL (if dynamic linking is used) -->
+    <!-- DLLs (dynamic linking; keeps LGPL libiconv replaceable by the consumer) -->
     <file src="vcpkg_installed\x64-windows\bin\*.dll" target="build\native\bin\x64\Release" />
     <file src="vcpkg_installed\x64-windows\bin\*.pdb" target="build\native\bin\x64\Release" />
 

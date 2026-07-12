@@ -44,6 +44,31 @@ jobs:
       - name: Install libxml2 with vcpkg
         run: .\vcpkg\vcpkg.exe install --triplet x64-windows
 
+      # licenses/*.txt is committed (so the repo is auditable and `nuget pack`
+      # works locally), but every vcpkg port also installs its authoritative
+      # license text at share/<port>/copyright. Overwrite the committed copies
+      # with those, so the texts we ship always match the revision we built.
+      - name: Collect third-party license texts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $share = "vcpkg_installed\x64-windows\share"
+          New-Item -ItemType Directory -Force -Path licenses | Out-Null
+
+          Get-ChildItem -Path $share -Filter copyright -Recurse -File | ForEach-Object {
+            $port = $_.Directory.Name
+            Copy-Item $_.FullName -Destination "licenses\$port.txt" -Force
+            Write-Host "collected: $port"
+          }
+
+          # Fail the build if a component we know we redistribute has no license text.
+          # A missing text here would mean shipping the binary without its license.
+          $required = @("libxml2", "libiconv", "zlib", "liblzma")
+          $missing = $required | Where-Object { -not (Test-Path "licenses\$_.txt") }
+          if ($missing) {
+            throw "Missing license text for redistributed component(s): $($missing -join ', ')"
+          }
+
       - name: Pack NuGet package
         run: |
           nuget pack libxml2.nuspec -OutputDirectory out
