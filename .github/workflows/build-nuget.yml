@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 
 jobs:
   build:
@@ -21,15 +22,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Obter versão do libxml2 via vcpkg.json
+      # The package version lives in the nuspec -- it is the version `nuget pack`
+      # stamps onto the .nupkg, and it carries a packaging revision on top of the
+      # upstream libxml2 version (e.g. 2.9.10.1 for libxml2 2.9.10). Deriving it
+      # from vcpkg.json would tag the release differently from the artifact.
+      - name: Obter versão do pacote via nuspec
         id: get-version
         shell: pwsh
         run: |
-          $json = Get-Content -Raw -Path "vcpkg.json" | ConvertFrom-Json
-          $dep = $json.dependencies | Where-Object { $_.name -eq "libxml2" }
-          $version = if ($dep.version) { $dep.version } elseif ($dep.'version>=') { $dep.'version>=' } else { "0.0.0" }
-          echo "Versão: $version"
-          echo "PACKAGE_VERSION=$version" >> $env:GITHUB_OUTPUT
+          $ErrorActionPreference = "Stop"
+          $version = ([xml](Get-Content -Raw -Path "libxml2.nuspec")).package.metadata.version
+          if (-not $version) { throw "Could not read <version> from libxml2.nuspec" }
+
+          # A tag push must agree with the nuspec, otherwise the release would
+          # advertise a version the .nupkg inside it does not have.
+          if ($env:GITHUB_REF -like "refs/tags/*") {
+            $tag = $env:GITHUB_REF -replace '^refs/tags/', ''
+            if ($tag -ne $version) {
+              throw "Tag '$tag' does not match nuspec version '$version'. Bump libxml2.nuspec or retag."
+            }
+          }
+
+          Write-Host "Versão: $version"
+          "PACKAGE_VERSION=$version" >> $env:GITHUB_OUTPUT
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
@@ -73,21 +88,33 @@ jobs:
         run: |
           nuget pack libxml2.nuspec -OutputDirectory out
 
+      # Trusted Publishing: exchange the job's GitHub OIDC token for a NuGet.org
+      # API key that is valid for 1 hour. Keep this step immediately before the
+      # push -- the key expires, and each OIDC token buys exactly one key.
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish on NuGet.org
-        run: nuget push out\*.nupkg -ApiKey ${{ secrets.NUGET_API_KEY }} -Source https://api.nuget.org/v3/index.json
+        run: >
+          dotnet nuget push out\*.nupkg
+          --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ env.PACKAGE_VERSION }}
-          tag_name: ${{ env.PACKAGE_VERSION }}
+          name: Release ${{ steps.get-version.outputs.PACKAGE_VERSION }}
+          tag_name: ${{ steps.get-version.outputs.PACKAGE_VERSION }}
           files: |
-            ${{env.GITHUB_WORKSPACE}}\out\*.nupkg
+            out/*.nupkg
           draft: false
           prerelease: false
           generate_release_notes: true
           make_latest: true
-          fail_on_unmatched_files: false
+          fail_on_unmatched_files: true
           token: ${{ secrets.GITHUB_TOKEN }}
   
       - name: Upload NuGet artifact
