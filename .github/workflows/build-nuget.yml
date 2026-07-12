@@ -15,6 +15,11 @@ jobs:
   build:
     runs-on: windows-latest
 
+    # Must match the Environment configured on the nuget.org Trusted Publishing
+    # policy -- it is carried as a claim on the OIDC token and the token exchange
+    # rejects a mismatch.
+    environment: production
+
     env:
       VCPKG_ROOT: ${{ github.workspace }}\vcpkg
 
