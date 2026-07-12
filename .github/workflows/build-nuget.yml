@@ -81,12 +81,32 @@ jobs:
             Write-Host "collected: $port"
           }
 
-          # Fail the build if a component we know we redistribute has no license text.
-          # A missing text here would mean shipping the binary without its license.
-          $required = @("libxml2", "libiconv", "zlib", "liblzma")
-          $missing = $required | Where-Object { -not (Test-Path "licenses\$_.txt") }
+          # The set of ports vcpkg installs depends on which libxml2 version is
+          # pinned, but the nuspec's SPDX expression and <copyright> are static.
+          # Compare both directions: a port with no license text means shipping a
+          # binary without its license; a port we did not declare means the SPDX
+          # expression on the package page no longer describes the payload. Both
+          # are the defect that triggered the 2026 DMCA notice, so both fail here.
+          $declared = @("libxml2", "libiconv", "zlib", "liblzma")
+          $installed = Get-ChildItem -Path $share -Directory |
+                       Where-Object { Test-Path (Join-Path $_.FullName "copyright") } |
+                       ForEach-Object { $_.Name }
+
+          $missing = $declared | Where-Object { $_ -notin $installed }
           if ($missing) {
-            throw "Missing license text for redistributed component(s): $($missing -join ', ')"
+            throw "Redistributed component(s) with no license text: $($missing -join ', ')"
+          }
+
+          $undeclared = $installed | Where-Object { $_ -notin $declared }
+          if ($undeclared) {
+            throw @"
+Port(s) installed by vcpkg but not declared in libxml2.nuspec: $($undeclared -join ', ')
+
+The pinned libxml2 version pulls a component the package metadata does not
+account for. Before releasing, update libxml2.nuspec (<license> SPDX expression
+and <copyright>), THIRD-PARTY-NOTICES.md, libxml2.vcpkg.targets and README.md,
+then add the port to `$declared` above.
+"@
           }
 
       - name: Pack NuGet package
